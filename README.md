@@ -80,3 +80,34 @@ classDiagram
     Season "1" -- "1..*" Episode: contains
     Episode "1" *-- "0..*" Review: has
 ```
+## Streamy User Registration Workflow (Sequence Diagram)
+The diagram below illustrates the synchronous and asynchronous system interactions during user onboard registration.
+
+```mermaid
+---
+title: User Sign Up Flow
+---
+sequenceDiagram
+    autonumber
+    actor Browser
+    participant Sign Up Service
+    participant User Service
+    participant Kafka
+
+    links User Service: {"Repository": "[https://github.com/root14760/Streamy-Software-Technology](https://github.com/root14760/Streamy-Software-Technology)"}
+
+    Browser->>+Sign Up Service: GET /sign_up
+    Sign Up Service-->>-Browser: 200 OK (HTML page)
+    Browser->>+Sign Up Service: POST /sign_up
+    Sign Up Service->>Sign Up Service: Validate input
+
+    alt invalid input
+        Sign Up Service-->>Browser: Error
+    else valid input
+        Sign Up Service->>+User Service: POST /users
+        User Service--) Kafka: User Created Event Published
+        Note left of Kafka: other services take action based on this event
+        User Service-->>-Sign Up Service: 201 Created (User)
+        Sign Up Service-->>-Browser: 301 Redirect (Login page)
+    end
+```
