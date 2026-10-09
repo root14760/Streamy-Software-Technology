@@ -57,3 +57,26 @@ flowchart TD
     classDef decisionStyle fill:#f9f,stroke:#333,stroke-width:2px;
     class E decisionStyle;
 ```
+## Streamy Application Core Domain Model (UML)
+The following UML class diagram models the entity relationships, inheritance hierarchies, and multiplicities across the Streamy backend platform.
+
+```mermaid
+---
+title: Streamy Domain Model
+---
+classDiagram
+    Title: \n\n
+    link Title "[https://github.com/root14760/Streamy-Software-Technology](https://github.com/root14760/Streamy-Software-Technology)" _blank
+
+    Title "1..*" -- "1..*" Genre: is associated with
+    Title "1" *-- "0..*" Season: has
+    Title "1" *-- "0..*" Review: has
+    Title "0..*" -- "1..*" Actor: features
+    TVShow --> Title: implements
+    Short --> Title: implements
+    Film --> Title: implements
+    Viewer "0..*" --> "0..*" Title: watches
+    Season "1" *-- "0..*" Review: has
+    Season "1" -- "1..*" Episode: contains
+    Episode "1" *-- "0..*" Review: has
+```
