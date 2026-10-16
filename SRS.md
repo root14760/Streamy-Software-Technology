@@ -42,3 +42,30 @@ flowchart LR
     UI -- Triggers Playback Route --> FR2
     UI -- Submits Rating Payload --> FR3
 ```
+## 4. C4 Architecture Model: System Context
+The following high-level C4 System Context diagram illustrates the core Listing Service and its interactions with external supporting microservices.
+
+```mermaid
+---
+title: Listing Service C4 Model System Context
+---
+flowchart TD
+    User["Premium Member<br>[Person]<br><br>A user of the website who has purchased a subscription"]
+    LS["Listings Service<br>[Software System]<br><br>Serves web pages displaying title listings to the end user"]
+    TS["Title Service<br>[Software System]<br><br>Provides an API to retrieve title information"]
+    RS["Review Service<br>[Software System]<br><br>Provides an API to retrieve and submit reviews"]
+    SS["Search Service<br>[Software System]<br><br>Provides an API to search for titles"]
+
+    User -- "Views titles, searches titles and reviews titles using" --> LS
+    LS -- "Retrieves title information from" --> TS
+    LS -- "Retrieves from and submits reviews to" --> RS
+    LS -- "Searches for titles using" --> SS
+
+    classDef person fill:#08427b,stroke:#052e56,color:#ffffff
+    classDef focusSystem fill:#1168bd,stroke:#0b4884,color:#ffffff
+    classDef supportingSystem fill:#666666,stroke:#0b4884,color:#ffffff
+
+    class User person
+    class LS focusSystem
+    class TS,RS,SS supportingSystem
+```
