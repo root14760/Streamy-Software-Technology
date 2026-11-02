@@ -109,3 +109,57 @@ flowchart TD
 
     style listing-service fill:none,stroke:#CCC,stroke-width:2px,stroke-dasharray: 5 5
 ```
+## 6. C4 Architecture Model: Component Diagram
+The following C4 Component Diagram zooms into the Listing Service Web Application container to detail its internal controllers, business components, and external system dependencies.
+
+```mermaid
+---
+title: Listing Service C4 Model Component Diagram
+---
+flowchart TD
+    classDef container fill:#1168bd,stroke:#0b4884,color:#ffffff
+    classDef externalSystem fill:#666666,stroke:#0b4884,color:#ffffff
+    classDef component fill:#85bbf0,stroke:#5d82a8,color:#000000
+
+    Browser["Browser<br>[Web Browser]<br><br>Used by a user to browse the website"]
+    MA["Application<br>[Xamarin Application]<br><br>Allows members to view and review titles from their mobile devices"]
+    R[("In-Memory Cache<br>[Redis]<br><br>Titles and their reviews are cached")]
+    K["Message Broker<br>[Kafka]<br><br>Important domain events are published to Kafka"]
+    TS["Title Service<br>[Software System]<br><br>Provides an API to retrieve title information"]
+    RS["Review Service<br>[Software System]<br><br>Provides an API to retrieve and submit reviews"]
+    SS["Search Service<br>[Software System]<br><br>Provides an API to search for titles"]
+
+    subgraph listing-service [Listing Service Web Application]
+        TCont["Title Controller<br>[ASP.NET MVC Controller]<br><br>Allows users to view details about titles"]
+        SCont["Search Controller<br>[ASP.NET MVC Controller]<br><br>Allows users to search for titles"]
+        RCont["Review Controller<br>[ASP.NET MVC Controller]<br><br>Allows users to read and write reviews"]
+        TComp["Title Component<br>[ASP.NET Namespace]<br><br>Provides information on titles, retrieves info from Title Service and caches titles"]
+        SComp["Search Component<br>[ASP.NET Namespace]<br><br>Searches titles using the Search Service"]
+        RComp["Review Component<br>[ASP.NET Namespace]<br><br>Provides review info, submits new reviews and publishes domain events"]
+
+        TCont ---> TComp
+        RCont ---> TComp
+        RCont ---> RComp
+        SCont ---> SComp
+    end
+
+    Browser -- "Submits requests to<br>[HTTPS]" --> TCont
+    Browser -- "Submits requests to<br>[HTTPS]" ---> SCont
+    Browser -- "Submits requests to<br>[HTTPS]" ---> RCont
+    MA -- "Submits requests to<br>[HTTPS]" ---> TCont
+    MA -- "Submits requests to<br>[HTTPS]" ---> SCont
+    MA -- "Submits requests to<br>[HTTPS]" ---> RCont
+
+    TComp ---> TS
+    TComp ---> R
+    RComp ---> R
+    RComp ---> K
+    RComp ---> RS
+    SComp ---> SS
+
+    class MA,R container
+    class SS,RS,TS,K,Browser externalSystem
+    class RComp,SComp,TComp,RCont,SCont,TCont component
+
+    style listing-service fill:none,stroke:#CCC,stroke-width:2px,stroke-dasharray: 5 5
+```
