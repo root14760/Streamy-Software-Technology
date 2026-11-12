@@ -134,3 +134,107 @@ erDiagram
     REVIEW }o..o| EPISODE: "made against"
     REVIEW }o..o| SEASON: "made against"
 ```
+## 4. Code-Level Class Architecture & Refactoring (Lab 9 Extra)
+The following UML class diagrams illustrate the refactoring of the user registration module. By introducing a dedicated request DTO (`CreateUserRequest`) and an interface contract (`ICreateUserService`), we eliminate data clumps and invert dependencies away from concrete service implementations.
+
+### 4.1 Initial Tightly Coupled Architecture (Before)
+```mermaid
+---
+title: Initial Tightly Coupled Classes
+---
+classDiagram
+    class UserController {
+        -CreateUserService _createUserService
+        +UserController(CreateUserService createUserService)
+        +Create(string email, string username) User
+    }
+    class CreateUserService {
+        -UserModel _userModel
+        -SendWelcomeEmailService _sendWelcomeEmailService
+        -Kafka _kafka
+        +CreateUserService(UserModel um, SendWelcomeEmailService es, Kafka k)
+        +Call(string email, string username) User
+        -CheckActiveUsers(List~User~ users) bool
+    }
+    class UserModel {
+        +FindUsersByEmail(string email) List~User~
+        +CreateUser(string email, string username) User
+    }
+    class User {
+        +int UserId
+        +string Username
+        +string Email
+    }
+    class SendWelcomeEmailService {
+        +Call(string email, string username) bool
+    }
+    class Kafka {
+        +PublishUserCreatedEvent(string email, string username) bool
+    }
+
+    UserController ..> CreateUserService: depends on
+    CreateUserService ..> UserModel: depends on
+    UserModel ..> User: depends on
+    CreateUserService ..> SendWelcomeEmailService: depends on
+    CreateUserService ..> Kafka: depends on
+```
+
+### 4.2 Final Decoupled Architecture (After)
+```mermaid
+---
+title: Final Decoupled Architecture
+---
+classDiagram
+    class UserController {
+        <<Class>>
+        -ICreateUserService _createUserService
+        +UserController(ICreateUserService createUserService)
+        +Create(string email, string username) User
+    }
+    class CreateUserRequest {
+        <<Class>>
+        +string Email
+        +string Username
+        +Validate() bool
+    }
+    class ICreateUserService {
+        <<Interface>>
+        +Call(CreateUserRequest createUserRequest) User
+    }
+    class CreateUserService {
+        <<Class>>
+        -UserModel _userModel
+        -SendWelcomeEmailService _sendWelcomeEmailService
+        -Kafka _kafka
+        +CreateUserService(UserModel um, SendWelcomeEmailService es, Kafka k)
+        +Call(CreateUserRequest createUserRequest) User
+        -CheckActiveUsers(List~User~ users) bool
+    }
+    class UserModel {
+        <<Class>>
+        +FindUsersByEmail(string email) List~User~
+        +CreateUser(string email, string username) User
+    }
+    class User {
+        <<Class>>
+        +int UserId
+        +string Username
+        +string Email
+    }
+    class SendWelcomeEmailService {
+        <<Class>>
+        +Call(User user) bool
+    }
+    class Kafka {
+        <<Class>>
+        +PublishUserCreatedEvent(User user) bool
+    }
+
+    UserController ..> CreateUserRequest: depends on
+    UserController ..> ICreateUserService: depends on
+    CreateUserService ..|> ICreateUserService: implements
+    CreateUserService ..> UserModel: depends on
+    UserModel ..> User: depends on
+    CreateUserService ..> SendWelcomeEmailService: depends on
+    CreateUserService ..> Kafka: depends on
+```
