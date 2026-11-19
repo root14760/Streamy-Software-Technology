@@ -111,3 +111,12 @@ sequenceDiagram
         Sign Up Service-->>-Browser: 301 Redirect (Login page)
     end
 ```
+## System Architecture Overview
+This repository uses Mermaid for architecture and domain documentation.
+
+```mermaid
+flowchart LR
+    Client[Web Client] -->|HTTPS| API[API Gateway]
+    API --> Service[Listing Service]
+    Service --> DB[(Database)]
+```
